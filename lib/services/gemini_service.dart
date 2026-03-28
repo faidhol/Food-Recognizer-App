@@ -3,7 +3,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 class GeminiService {
   final model = GenerativeModel(
     model: 'gemini-1.5-flash',
-    apiKey: 'API GEMINI disini',
+    apiKey: 'API GEMINI ',
   );
 
   Future<Map<String, String>> getNutrition(String foodName) async {
