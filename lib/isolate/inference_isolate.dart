@@ -1,14 +1,7 @@
 import 'dart:io';
 import 'package:image/image.dart' as img;
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:submission/services/ml_service.dart';
-
-const List<String> labels = [
-  "pizza",
-  "burger",
-  "fried rice",
-  "sushi",
-  "ramen",
-];
 
 Future<Map<String, dynamic>> runInference(String path) async {
   final image = img.decodeImage(File(path).readAsBytesSync());
@@ -33,14 +26,26 @@ Future<Map<String, dynamic>> runInference(String path) async {
     }
   }
 
-  if (maxIndex >= labels.length) {
-    throw Exception("Label tidak sesuai dengan model output");
-  }
+  final labels = await loadLabels();
 
   return {
     "label": labels[maxIndex],
     "confidence": (maxScore * 100).toStringAsFixed(2),
   };
+}
+
+Future<List<String>> loadLabels() async {
+  final data = await rootBundle.loadString('assets/label.txt');
+
+  return data.split('\n').map((line) {
+    final parts = line.trim().split(' ');
+
+    if (parts.length > 1) {
+      return parts.sublist(1).join(' ');
+    }
+
+    return line.trim();
+  }).toList();
 }
 
 List<List<List<List<double>>>> _imageToTensor(img.Image image) {

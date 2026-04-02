@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:submission/isolate/inference_isolate.dart';
 import 'package:submission/widget/classification_item.dart';
 import 'package:submission/services/meal_service.dart';
@@ -51,7 +50,7 @@ class _ResultBodyState extends State<_ResultBody> {
 
   Future<void> _loadData() async {
     try {
-      final result = await compute(runInference, widget.image.path);
+      final result = await runInference(widget.image.path);
 
       final meal = await MealService().fetchMeal(result['label']);
       final nutri = await GeminiService().getNutrition(result['label']);
@@ -140,7 +139,6 @@ class _ResultBodyState extends State<_ResultBody> {
                   ),
 
                 if (!isLoading && !isError) ...[
-                  /// HASIL AI
                   ClassificationItem(
                     item: label ?? "-",
                     value: "${confidence ?? "-"}%",
