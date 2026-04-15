@@ -10,7 +10,7 @@ class MLService {
   Interpreter? _interpreter;
 
   Future<void> loadModel() async {
-    _interpreter = await Interpreter.fromAsset('assets/mobilenet.tflite');
+    _interpreter = await Interpreter.fromAsset('mobilenet.tflite');
   }
 
   List<double> run(List input) {

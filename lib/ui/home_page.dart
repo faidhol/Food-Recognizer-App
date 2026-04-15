@@ -14,10 +14,7 @@ class HomePage extends StatelessWidget {
         title: const Text('Food Recognizer App'),
       ),
       body: const SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(8.0),
-          child: _HomeBody(),
-        ),
+        child: Padding(padding: EdgeInsets.all(8.0), child: _HomeBody()),
       ),
     );
   }
@@ -38,9 +35,7 @@ class _HomeBody extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const CameraPage(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const CameraPage()),
                 );
               },
               child: Consumer<HomeController>(
@@ -56,7 +51,16 @@ class _HomeBody extends StatelessWidget {
         ),
         FilledButton.tonal(
           onPressed: () {
-                context.read<HomeController>().goToResultPage(context);
+            final controller = context.read<HomeController>();
+
+            if (controller.image == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Ambil gambar dulu!")),
+              );
+              return;
+            }
+
+            controller.goToResultPage(context);
           },
           child: const Text("Analyze"),
         ),

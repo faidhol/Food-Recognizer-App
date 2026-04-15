@@ -17,9 +17,7 @@ class ResultPage extends StatelessWidget {
         title: const Text('Result Page'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: SafeArea(
-        child: _ResultBody(image: image),
-      ),
+      body: SafeArea(child: _ResultBody(image: image)),
     );
   }
 }
@@ -65,7 +63,10 @@ class _ResultBodyState extends State<_ResultBody> {
         isLoading = false;
         isError = false;
       });
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint("ERROR: $e");
+      debugPrint("STACK: $stack");
+
       if (!mounted) return;
 
       setState(() {
@@ -73,11 +74,9 @@ class _ResultBodyState extends State<_ResultBody> {
         isError = true;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Gagal memproses data, coba lagi ya 🙏"),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
 
@@ -115,8 +114,7 @@ class _ResultBodyState extends State<_ResultBody> {
 
                 const SizedBox(height: 16),
 
-                if (isLoading)
-                  const Center(child: CircularProgressIndicator()),
+                if (isLoading) const Center(child: CircularProgressIndicator()),
 
                 if (isError)
                   Center(

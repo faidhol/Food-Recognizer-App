@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:submission/controller/home_controller.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({super.key});
@@ -9,7 +12,9 @@ class CameraPage extends StatefulWidget {
 }
 
 class _CameraPageState extends State<CameraPage> {
-  CameraController? controller;
+  CameraController? _controller;
+  List<CameraDescription>? cameras;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -18,53 +23,62 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future<void> initCamera() async {
-    try {
-      final cameras = await availableCameras();
-      if (cameras.isEmpty) {
-        debugPrint("No cameras found");
-        return;
-      }
+    cameras = await availableCameras();
 
-      controller = CameraController(
-        cameras[0],
-        ResolutionPreset.medium,
-        enableAudio: false,
-      );
+    _controller = CameraController(
+      cameras![0], // kamera belakang
+      ResolutionPreset.medium,
+    );
 
-      await controller!.initialize();
+    await _controller!.initialize();
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      controller!.startImageStream((image) {
-        // Tambahkan logika pemrosesan frame di sini
-        debugPrint("Streaming frame...");
-      });
+    setState(() {
+      isLoading = false;
+    });
+  }
 
-      setState(() {});
-    } catch (e) {
-      debugPrint("Camera error: $e");
-    }
+  Future<void> takePicture() async {
+    if (!_controller!.value.isInitialized) return;
+
+    final image = await _controller!.takePicture();
+
+    final file = File(image.path);
+
+    if (!mounted) return;
+
+    context.read<HomeController>().setImage(file);
+
+    Navigator.pop(context); // balik ke home
   }
 
   @override
   void dispose() {
-    controller?.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (controller == null || !controller!.value.isInitialized) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return Scaffold(
-      body: Center(
-        child: AspectRatio(
-          aspectRatio: controller!.value.aspectRatio,
-          child: CameraPreview(controller!),
-        ),
-      ),
+      appBar: AppBar(title: const Text("Camera")),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Expanded(
+                  child: CameraPreview(_controller!),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton(
+                    onPressed: takePicture,
+                    child: const Text("Capture"),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

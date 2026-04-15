@@ -11,7 +11,6 @@ Future<Map<String, dynamic>> runInference(String path) async {
   }
 
   final resized = img.copyResize(image, width: 224, height: 224);
-
   final input = _imageToTensor(resized);
 
   final result = MLService().run(input);
@@ -28,6 +27,10 @@ Future<Map<String, dynamic>> runInference(String path) async {
 
   final labels = await loadLabels();
 
+  if (maxIndex >= labels.length) {
+    throw Exception("Label tidak cocok dengan model");
+  }
+
   return {
     "label": labels[maxIndex],
     "confidence": (maxScore * 100).toStringAsFixed(2),
@@ -35,7 +38,7 @@ Future<Map<String, dynamic>> runInference(String path) async {
 }
 
 Future<List<String>> loadLabels() async {
-  final data = await rootBundle.loadString('assets/label.txt');
+  final data = await rootBundle.loadString('assets/labels.txt');
 
   return data.split('\n').map((line) {
     final parts = line.trim().split(' ');
