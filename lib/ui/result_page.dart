@@ -47,38 +47,50 @@ class _ResultBodyState extends State<_ResultBody> {
   }
 
   Future<void> _loadData() async {
+  try {
+    final result = await runInference(widget.image.path);
+
+    Map<String, dynamic>? meal;
+    Map<String, String>? nutri;
+
     try {
-      final result = await runInference(widget.image.path);
-
-      final meal = await MealService().fetchMeal(result['label']);
-      final nutri = await GeminiService().getNutrition(result['label']);
-
-      if (!mounted) return;
-
-      setState(() {
-        label = result['label'];
-        confidence = result['confidence'];
-        mealData = meal;
-        nutrition = nutri;
-        isLoading = false;
-        isError = false;
-      });
-    } catch (e, stack) {
-      debugPrint("ERROR: $e");
-      debugPrint("STACK: $stack");
-
-      if (!mounted) return;
-
-      setState(() {
-        isLoading = false;
-        isError = true;
-      });
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+      meal = await MealService().fetchMeal(result['label']);
+    } catch (e) {
+      debugPrint("Meal API error: $e");
     }
+
+    try {
+      nutri = await GeminiService().getNutrition(result['label']);
+    } catch (e) {
+      debugPrint("Gemini error: $e");
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      label = result['label'];
+      confidence = result['confidence'];
+      mealData = meal;
+      nutrition = nutri;
+      isLoading = false;
+      isError = false;
+    });
+  } catch (e, stack) {
+    debugPrint("ERROR: $e");
+    debugPrint("STACK: $stack");
+
+    if (!mounted) return;
+
+    setState(() {
+      isLoading = false;
+      isError = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error: $e")),
+    );
   }
+}
 
   List<Widget> _buildIngredients(Map<String, dynamic> meal) {
     List<Widget> list = [];
