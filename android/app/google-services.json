@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "842061811132",
+    "project_id": "food-recognizer-faidhol",
+    "storage_bucket": "food-recognizer-faidhol.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:842061811132:android:d30c2ff0aadd8831a0efb9",
+        "android_client_info": {
+          "package_name": "com.dicoding.flutter.u758.submission"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfDto8oFABRChubw31icNTeOtfvEw8kK8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

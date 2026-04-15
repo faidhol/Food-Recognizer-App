@@ -18,19 +18,32 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future<void> initCamera() async {
-    final cameras = await availableCameras();
-    controller = CameraController(
-      cameras[0],
-      ResolutionPreset.medium,
-    );
+    try {
+      final cameras = await availableCameras();
+      if (cameras.isEmpty) {
+        debugPrint("No cameras found");
+        return;
+      }
 
-    await controller!.initialize();
+      controller = CameraController(
+        cameras[0],
+        ResolutionPreset.medium,
+        enableAudio: false,
+      );
 
-    controller!.startImageStream((image) {
-      print("Streaming frame...");
-    });
+      await controller!.initialize();
 
-    setState(() {});
+      if (!mounted) return;
+
+      controller!.startImageStream((image) {
+        // Tambahkan logika pemrosesan frame di sini
+        debugPrint("Streaming frame...");
+      });
+
+      setState(() {});
+    } catch (e) {
+      debugPrint("Camera error: $e");
+    }
   }
 
   @override
@@ -45,6 +58,13 @@ class _CameraPageState extends State<CameraPage> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return CameraPreview(controller!);
+    return Scaffold(
+      body: Center(
+        child: AspectRatio(
+          aspectRatio: controller!.value.aspectRatio,
+          child: CameraPreview(controller!),
+        ),
+      ),
+    );
   }
 }
