@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 class MLService {
@@ -13,14 +14,29 @@ class MLService {
     _interpreter = await Interpreter.fromAsset('assets/mobilenet.tflite');
   }
 
-  List<double> run(List input) {
+  List<double> run(Uint8List input) {
     if (_interpreter == null) {
       throw Exception("Model belum di-load");
     }
 
-    final output = List.generate(1, (_) => List.filled(1000, 0.0));
+    final inputTensor = List.generate(
+      1,
+      (_) => List.generate(
+        224,
+        (y) => List.generate(224, (x) {
+          final i = (y * 224 + x) * 3;
+          return [
+            input[i].toDouble(),
+            input[i + 1].toDouble(),
+            input[i + 2].toDouble(),
+          ];
+        }),
+      ),
+    );
 
-    _interpreter!.run(input, output);
+    final output = List.generate(1, (_) => List.filled(2024, 0.0));
+
+    _interpreter!.run(inputTensor, output);
 
     return List<double>.from(output[0]);
   }

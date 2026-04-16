@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:submission/services/ml_service.dart';
+import 'dart:typed_data';
 
 Future<Map<String, dynamic>> runInference(String path) async {
   final image = img.decodeImage(File(path).readAsBytesSync());
@@ -13,7 +14,10 @@ Future<Map<String, dynamic>> runInference(String path) async {
   final resized = img.copyResize(image, width: 224, height: 224);
   final input = _imageToTensor(resized);
 
-  final result = MLService().run(input);
+  final ml = MLService();
+  await ml.loadModel(); // 🔥 penting biar gak null
+
+  final result = ml.run(input);
 
   int maxIndex = 0;
   double maxScore = result[0];
@@ -51,18 +55,21 @@ Future<List<String>> loadLabels() async {
   }).toList();
 }
 
-List<List<List<List<double>>>> _imageToTensor(img.Image image) {
-  return [
-    List.generate(224, (y) {
-      return List.generate(224, (x) {
-        final pixel = image.getPixel(x, y);
+Uint8List _imageToTensor(img.Image image) {
+  final buffer = Uint8List(224 * 224 * 3);
 
-        return [
-          pixel.r / 255.0,
-          pixel.g / 255.0,
-          pixel.b / 255.0,
-        ];
-      });
-    }),
-  ];
+  int index = 0;
+
+  for (int y = 0; y < 224; y++) {
+    for (int x = 0; x < 224; x++) {
+      final pixel = image.getPixel(x, y);
+
+      buffer[index++] = pixel.r.toInt();
+      buffer[index++] = pixel.g.toInt();
+      buffer[index++] = pixel.b.toInt();
+    }
+  }
+
+  return buffer;
 }
+
