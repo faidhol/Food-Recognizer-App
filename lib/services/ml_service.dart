@@ -10,7 +10,7 @@ class MLService {
   Interpreter? _interpreter;
 
   Future<void> loadModel() async {
-    _interpreter = await Interpreter.fromAsset('mobilenet.tflite');
+    _interpreter = await Interpreter.fromAsset('assets/mobilenet.tflite');
   }
 
   List<double> run(List input) {
@@ -18,7 +18,7 @@ class MLService {
       throw Exception("Model belum di-load");
     }
 
-    final output = List.generate(1, (_) => List.filled(2023, 0.0));
+    final output = List.generate(1, (_) => List.filled(1000, 0.0));
 
     _interpreter!.run(input, output);
 
