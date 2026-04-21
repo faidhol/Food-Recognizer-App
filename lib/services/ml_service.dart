@@ -25,19 +25,15 @@ class MLService {
         224,
         (y) => List.generate(224, (x) {
           final i = (y * 224 + x) * 3;
-          return [
-            input[i].toDouble(),
-            input[i + 1].toDouble(),
-            input[i + 2].toDouble(),
-          ];
+          return [input[i].toInt(), input[i + 1].toInt(), input[i + 2].toInt()];
         }),
       ),
     );
 
-    final output = List.generate(1, (_) => List.filled(2024, 0.0));
+    final output = List.generate(1, (_) => List.filled(2024, 0));
 
     _interpreter!.run(inputTensor, output);
 
-    return List<double>.from(output[0]);
+    return output[0].map((e) => e / 255.0).toList();
   }
 }

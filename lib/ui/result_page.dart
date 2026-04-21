@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:submission/isolate/inference_isolate.dart';
@@ -47,50 +48,52 @@ class _ResultBodyState extends State<_ResultBody> {
   }
 
   Future<void> _loadData() async {
-  try {
-    final result = await runInference(widget.image.path);
-
-    Map<String, dynamic>? meal;
-    Map<String, String>? nutri;
-
     try {
-      meal = await MealService().fetchMeal(result['label']);
-    } catch (e) {
-      debugPrint("Meal API error: $e");
+      final result = await runInference(widget.image.path);
+
+      Map<String, dynamic>? meal;
+      Map<String, String>? nutri;
+      String rawLabel = result['label'];
+      String cleanLabel = rawLabel.replaceFirst(RegExp(r'^\d+\s+'), '').trim();
+      try {
+        meal = await MealService().fetchMeal(cleanLabel);
+      } catch (e) {
+        log("Meal API error: $e");
+        debugPrint("Meal API error: $e");
+      }
+
+      try {
+        nutri = await GeminiService().getNutrition(result['label']);
+      } catch (e) {
+        debugPrint("Gemini error: $e");
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        label = result['label'];
+        confidence = result['confidence'];
+        mealData = meal;
+        nutrition = nutri;
+        isLoading = false;
+        isError = false;
+      });
+    } catch (e, stack) {
+      debugPrint("ERROR: $e");
+      debugPrint("STACK: $stack");
+
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+        isError = true;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
-
-    try {
-      nutri = await GeminiService().getNutrition(result['label']);
-    } catch (e) {
-      debugPrint("Gemini error: $e");
-    }
-
-    if (!mounted) return;
-
-    setState(() {
-      label = result['label'];
-      confidence = result['confidence'];
-      mealData = meal;
-      nutrition = nutri;
-      isLoading = false;
-      isError = false;
-    });
-  } catch (e, stack) {
-    debugPrint("ERROR: $e");
-    debugPrint("STACK: $stack");
-
-    if (!mounted) return;
-
-    setState(() {
-      isLoading = false;
-      isError = true;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Error: $e")),
-    );
   }
-}
 
   List<Widget> _buildIngredients(Map<String, dynamic> meal) {
     List<Widget> list = [];

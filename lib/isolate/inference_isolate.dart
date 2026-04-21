@@ -15,7 +15,7 @@ Future<Map<String, dynamic>> runInference(String path) async {
   final input = _imageToTensor(resized);
 
   final ml = MLService();
-  await ml.loadModel(); // 🔥 penting biar gak null
+  await ml.loadModel();
 
   final result = ml.run(input);
 
