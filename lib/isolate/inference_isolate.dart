@@ -29,55 +29,26 @@ Future<Map<String, dynamic>> runInference(String path) async {
   final labels = await loadLabels();
 
   if (maxIndex >= labels.length) {
-    throw Exception("Index label tidak valid");
-  }
-
-  final rawLabel = labels[maxIndex].toLowerCase();
-
-  const allowedFoods = [
-    "pizza",
-    "burger",
-    "fried rice",
-    "nasi lemak",
-    "sushi",
-    "ramen",
-  ];
-
-  String finalLabel = "Tidak dikenali";
-
-  for (var food in allowedFoods) {
-    if (rawLabel.contains(food)) {
-      finalLabel = food;
-      break;
-    }
-  }
-
-  if (maxScore < 0.5) {
     return {"label": "Tidak dikenali", "confidence": "0"};
   }
 
-  return {
-    "label": finalLabel,
-    "confidence": (maxScore * 100).toStringAsFixed(2),
-  };
+  final label = labels[maxIndex];
+
+  if (label == "__background__" || maxScore < 0.5) {
+    return {"label": "Tidak dikenali", "confidence": "0"};
+  }
+
+  return {"label": label, "confidence": (maxScore * 100).toStringAsFixed(2)};
 }
 
 Future<List<String>> loadLabels() async {
   final data = await rootBundle.loadString('assets/labels.txt');
 
-  return data.split('\n').map((line) {
-    line = line.trim();
-
-    if (line.isEmpty) return "";
-
-    final parts = line.split(' ');
-
-    if (parts.length > 1 && int.tryParse(parts[0]) != null) {
-      return parts.sublist(1).join(' ');
-    }
-
-    return line;
-  }).toList();
+  return data
+      .split('\n')
+      .map((e) => e.trim())
+      .where((e) => e.isNotEmpty)
+      .toList();
 }
 
 Uint8List _imageToTensor(img.Image image) {

@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:submission/isolate/inference_isolate.dart';
@@ -51,19 +50,45 @@ class _ResultBodyState extends State<_ResultBody> {
     try {
       final result = await runInference(widget.image.path);
 
+      String cleanLabel = result['label'];
+
+      if (cleanLabel == "__background__") {
+        cleanLabel = "Tidak dikenali";
+      }
+
+      final foodKeywords = [
+        "rice",
+        "pizza",
+        "burger",
+        "sushi",
+        "noodle",
+        "cake",
+        "bread",
+        "chicken",
+        "beef",
+        "fish",
+        "egg",
+      ];
+
+      bool isFood = foodKeywords.any(
+        (keyword) => cleanLabel.toLowerCase().contains(keyword),
+      );
+
+      if (!isFood) {
+        cleanLabel = "Tidak dikenali";
+      }
+
       Map<String, dynamic>? meal;
       Map<String, String>? nutri;
-      String rawLabel = result['label'];
-      String cleanLabel = rawLabel.replaceFirst(RegExp(r'^\d+\s+'), '').trim();
+
       try {
         meal = await MealService().fetchMeal(cleanLabel);
       } catch (e) {
-        log("Meal API error: $e");
         debugPrint("Meal API error: $e");
       }
 
       try {
-        nutri = await GeminiService().getNutrition(result['label']);
+        nutri = await GeminiService().getNutrition(cleanLabel);
       } catch (e) {
         debugPrint("Gemini error: $e");
       }
@@ -71,7 +96,7 @@ class _ResultBodyState extends State<_ResultBody> {
       if (!mounted) return;
 
       setState(() {
-        label = result['label'];
+        label = cleanLabel;
         confidence = result['confidence'];
         mealData = meal;
         nutrition = nutri;
