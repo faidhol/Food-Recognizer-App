@@ -15,18 +15,14 @@ class HomeController extends ChangeNotifier {
   void goToResultPage(BuildContext context) {
     if (_image == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Silakan ambil gambar dulu"),
-        ),
+        const SnackBar(content: Text("Silakan ambil gambar dulu")),
       );
       return;
     }
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => ResultPage(image: _image!),
-      ),
+      MaterialPageRoute(builder: (context) => ResultPage(image: _image!)),
     );
   }
 }

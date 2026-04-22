@@ -1,8 +1,8 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:submission/services/ml_service.dart';
-import 'dart:typed_data';
 
 Future<Map<String, dynamic>> runInference(String path) async {
   final image = img.decodeImage(File(path).readAsBytesSync());
@@ -14,10 +14,7 @@ Future<Map<String, dynamic>> runInference(String path) async {
   final resized = img.copyResize(image, width: 224, height: 224);
   final input = _imageToTensor(resized);
 
-  final ml = MLService();
-  await ml.loadModel();
-
-  final result = ml.run(input);
+  final result = MLService().run(input);
 
   int maxIndex = 0;
   double maxScore = result[0];
@@ -32,11 +29,35 @@ Future<Map<String, dynamic>> runInference(String path) async {
   final labels = await loadLabels();
 
   if (maxIndex >= labels.length) {
-    throw Exception("Label tidak cocok dengan model");
+    throw Exception("Index label tidak valid");
+  }
+
+  final rawLabel = labels[maxIndex].toLowerCase();
+
+  const allowedFoods = [
+    "pizza",
+    "burger",
+    "fried rice",
+    "nasi lemak",
+    "sushi",
+    "ramen",
+  ];
+
+  String finalLabel = "Tidak dikenali";
+
+  for (var food in allowedFoods) {
+    if (rawLabel.contains(food)) {
+      finalLabel = food;
+      break;
+    }
+  }
+
+  if (maxScore < 0.5) {
+    return {"label": "Tidak dikenali", "confidence": "0"};
   }
 
   return {
-    "label": labels[maxIndex],
+    "label": finalLabel,
     "confidence": (maxScore * 100).toStringAsFixed(2),
   };
 }
@@ -45,13 +66,17 @@ Future<List<String>> loadLabels() async {
   final data = await rootBundle.loadString('assets/labels.txt');
 
   return data.split('\n').map((line) {
-    final parts = line.trim().split(' ');
+    line = line.trim();
 
-    if (parts.length > 1) {
+    if (line.isEmpty) return "";
+
+    final parts = line.split(' ');
+
+    if (parts.length > 1 && int.tryParse(parts[0]) != null) {
       return parts.sublist(1).join(' ');
     }
 
-    return line.trim();
+    return line;
   }).toList();
 }
 
@@ -72,4 +97,3 @@ Uint8List _imageToTensor(img.Image image) {
 
   return buffer;
 }
-

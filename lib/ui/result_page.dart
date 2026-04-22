@@ -121,7 +121,6 @@ class _ResultBodyState extends State<_ResultBody> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// IMAGE
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.file(widget.image, fit: BoxFit.cover),

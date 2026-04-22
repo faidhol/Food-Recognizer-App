@@ -26,7 +26,7 @@ class _CameraPageState extends State<CameraPage> {
     cameras = await availableCameras();
 
     _controller = CameraController(
-      cameras![0], // kamera belakang
+      cameras![0],
       ResolutionPreset.medium,
     );
 
@@ -50,7 +50,7 @@ class _CameraPageState extends State<CameraPage> {
 
     context.read<HomeController>().setImage(file);
 
-    Navigator.pop(context); // balik ke home
+    Navigator.pop(context);
   }
 
   @override
@@ -63,22 +63,21 @@ class _CameraPageState extends State<CameraPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Camera")),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Expanded(
-                  child: CameraPreview(_controller!),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: ElevatedButton(
-                    onPressed: takePicture,
-                    child: const Text("Capture"),
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                children: [
+                  Expanded(child: CameraPreview(_controller!)),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: ElevatedButton(
+                      onPressed: takePicture,
+                      child: const Text("Capture"),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
     );
   }
 }

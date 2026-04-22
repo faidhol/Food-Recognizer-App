@@ -13,7 +13,7 @@ class MealService {
       final data = json.decode(response.body);
 
       if (data['meals'] != null) {
-        return data['meals'][0]; 
+        return data['meals'][0];
       }
     }
 

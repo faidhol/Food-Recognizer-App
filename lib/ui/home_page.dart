@@ -16,10 +16,7 @@ class HomePage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: const SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(8.0),
-          child: _HomeBody(),
-        ),
+        child: Padding(padding: EdgeInsets.all(8.0), child: _HomeBody()),
       ),
     );
   }
@@ -31,10 +28,7 @@ class _HomeBody extends StatelessWidget {
   Future<void> _pickImage(BuildContext context, ImageSource source) async {
     final picker = ImagePicker();
 
-    final pickedFile = await picker.pickImage(
-      source: source,
-      imageQuality: 80,
-    );
+    final pickedFile = await picker.pickImage(source: source, imageQuality: 80);
 
     if (pickedFile == null) return;
 
@@ -46,9 +40,7 @@ class _HomeBody extends StatelessWidget {
           toolbarColor: Colors.deepPurple,
           toolbarWidgetColor: Colors.white,
         ),
-        IOSUiSettings(
-          title: 'Crop Image',
-        ),
+        IOSUiSettings(title: 'Crop Image'),
       ],
     );
 

@@ -18,9 +18,7 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => HomeController()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => HomeController())],
       child: const MyApp(),
     ),
   );
