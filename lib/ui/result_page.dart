@@ -56,28 +56,6 @@ class _ResultBodyState extends State<_ResultBody> {
         cleanLabel = "Tidak dikenali";
       }
 
-      final foodKeywords = [
-        "rice",
-        "pizza",
-        "burger",
-        "sushi",
-        "noodle",
-        "cake",
-        "bread",
-        "chicken",
-        "beef",
-        "fish",
-        "egg",
-      ];
-
-      bool isFood = foodKeywords.any(
-        (keyword) => cleanLabel.toLowerCase().contains(keyword),
-      );
-
-      if (!isFood) {
-        cleanLabel = "Tidak dikenali";
-      }
-
       Map<String, dynamic>? meal;
       Map<String, String>? nutri;
 

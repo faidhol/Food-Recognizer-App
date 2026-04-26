@@ -20,8 +20,6 @@ dependencies:
   image: ^4.8.0
   tflite_flutter: ^0.12.1
   google_generative_ai: ^0.4.7
-  firebase_core: ^3.4.0
-  cloud_firestore: ^5.4.0
   flutter_dotenv: ^5.1.0
 
 dev_dependencies:
