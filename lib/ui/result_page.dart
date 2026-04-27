@@ -66,7 +66,9 @@ class _ResultBodyState extends State<_ResultBody> {
       }
 
       try {
-        nutri = await GeminiService().getNutrition(cleanLabel);
+        if (cleanLabel.isNotEmpty && cleanLabel != "Tidak dikenali") {
+          nutri = await GeminiService().getNutrition(cleanLabel);
+        }
       } catch (e) {
         debugPrint("Gemini error: $e");
       }
